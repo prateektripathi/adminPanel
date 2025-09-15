@@ -1,0 +1,13 @@
+/* src/index.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  background-color: #f9fafb; /* Light mode background */
+}
+
+html.dark {
+  background-color: #1f2937; /* Dark mode background */
+}

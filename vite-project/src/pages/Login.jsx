@@ -1,25 +1,27 @@
-import React, { useState } from 'react';
-import { Leaf } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState } from "react";
+import { Leaf } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = login(email, password);
+    setError("");
+
+    const result = await login(email, password); // ✅ await added
     if (!result.success) {
-      setError(result.error);
+      setError(result.message || "Invalid credentials");
     }
   };
 
   const demoAccounts = [
-    { role: 'Admin', email: 'admin@example.com', password: 'password' },
-    { role: 'Staff', email: 'staff@example.com', password: 'password' },
-    { role: 'User', email: 'user@example.com', password: 'password' }
+    { role: "Admin", email: "admin@example.com", password: "password" },
+    { role: "Staff", email: "staff@example.com", password: "password" },
+    { role: "User", email: "user@example.com", password: "password" },
   ];
 
   return (
@@ -46,7 +48,10 @@ const Login = () => {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <input
@@ -61,7 +66,10 @@ const Login = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <input
@@ -83,6 +91,7 @@ const Login = () => {
             </button>
           </form>
 
+          {/* Demo Accounts */}
           <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">

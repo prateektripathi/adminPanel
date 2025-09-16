@@ -15,66 +15,63 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-const API_URL = "http://localhost:5000/api"; // 👈 backend ka url
+  const API_URL = "http://localhost:5000/api/auth"; // ✅ Backend route
 
+  // Mock users for frontend-only mode
+  const mockUsers = [
+    { id: 1, name: "Admin User", email: "admin@example.com", password: "password", role: "admin" },
+    { id: 2, name: "Staff Member", email: "staff@example.com", password: "password", role: "staff" },
+    { id: 3, name: "Normal User", email: "user@example.com", password: "password", role: "user" },
+  ];
+
+  // Load user from localStorage on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
-
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser));
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
     }
-
     setLoading(false);
   }, []);
 
+  // ✅ Login function (backend + mock support)
   const login = async (email, password) => {
     try {
+      // Try backend first
       const res = await axios.post(`${API_URL}/login`, { email, password });
+      const userData = res.data.user;
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+      return { success: true };
+    } catch (error) {
+      console.warn("Backend login failed, switching to mock:", error.message);
 
-      if (res.data.success) {
-        const { user } = res.data.data;
-        const token = res.data.token;
-
-        setUser(user);
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("token", token);
-
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
+      // Fallback: check mock users
+      const foundUser = mockUsers.find(
+        (u) => u.email === email && u.password === password
+      );
+      if (foundUser) {
+        setUser(foundUser);
+        localStorage.setItem("user", JSON.stringify(foundUser));
         return { success: true };
       }
-    } catch (error) {
+
       return {
         success: false,
-        error: error.response?.data?.message || "Login failed",
+        message:
+          error.response?.data?.message || "Invalid email or password (mock)",
       };
     }
   };
 
-  const logout = async () => {
-    try {
-      await axios.post(`${API_URL}/logout`);
-    } catch (err) {
-      console.error("Logout error:", err.message);
-    }
+  // ✅ Logout function
+  const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    delete axios.defaults.headers.common["Authorization"];
-  };
-
-  const value = {
-    user,
-    login,
-    logout,
-    loading,
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
+    <AuthContext.Provider value={{ user, login, logout, loading }}>
+      {children}
     </AuthContext.Provider>
   );
 };

@@ -49,7 +49,7 @@ const PaymentsOrders = () => {
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Amount</label>
-                  <p className="font-medium text-green-600">${selectedPayment.amount.toLocaleString()}</p>
+                  <p className="font-medium text-green-600">₹{selectedPayment.amount.toLocaleString()}</p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Payment Method</label>
@@ -63,7 +63,7 @@ const PaymentsOrders = () => {
               <div className="space-y-3">
                 <div>
                   <label className="text-sm text-gray-500">Payment Status</label>
-                  <span className={`block px-2 py-1 rounded-full text-xs font-medium w-fit ${
+                  <span className={`block px-2 py-1 rounded-full text-xs font-medium w-fit ₹{
                     selectedPayment.status === 'completed' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-yellow-100 text-yellow-800'
@@ -88,20 +88,20 @@ const PaymentsOrders = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-700">Premium Package</span>
-                <span className="font-medium">$1,500.00</span>
+                <span className="font-medium">₹1,500.00</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-700">Quality Test Service</span>
-                <span className="font-medium">$500.00</span>
+                <span className="font-medium">₹500.00</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-700">Processing Fee</span>
-                <span className="font-medium">$50.00</span>
+                <span className="font-medium">₹50.00</span>
               </div>
               <hr className="my-2" />
               <div className="flex justify-between font-bold">
                 <span>Total</span>
-                <span>${selectedPayment.amount.toLocaleString()}</span>
+                <span>₹{selectedPayment.amount.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -165,7 +165,7 @@ const PaymentsOrders = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-bold text-gray-900">$45,000</p>
+                <p className="text-2xl font-bold text-gray-900">₹45,000</p>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
                 <CreditCard className="text-green-600" size={20} />
@@ -201,7 +201,7 @@ const PaymentsOrders = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-2xl font-bold text-blue-600">$12,500</p>
+                <p className="text-2xl font-bold text-blue-600">₹12,500</p>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
                 <CreditCard className="text-blue-600" size={20} />
@@ -256,10 +256,10 @@ const PaymentsOrders = () => {
                     <span className="text-gray-900">{payment.userName}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="font-medium text-green-600">${payment.amount.toLocaleString()}</span>
+                    <span className="font-medium text-green-600">₹{payment.amount.toLocaleString()}</span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ₹{
                       payment.status === 'completed' 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-yellow-100 text-yellow-800'

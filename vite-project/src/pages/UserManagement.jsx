@@ -40,7 +40,7 @@ const UserManagement = () => {
       key: 'paymentStatus',
       label: 'Payment Status',
       render: (value) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+        <span className={`px-2 py-1 rounded-full text-xs font-medium ₹{
           value === 'paid' 
             ? 'bg-green-100 text-green-800' 
             : 'bg-red-100 text-red-800'
@@ -53,7 +53,7 @@ const UserManagement = () => {
     {
       key: 'totalPurchases',
       label: 'Total Purchases',
-      render: (value) => `$${value.toLocaleString()}`
+      render: (value) => `₹₹{value.toLocaleString()}`
     }
   ];
 
@@ -103,7 +103,7 @@ const UserManagement = () => {
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Payment Status</label>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ₹{
                     selectedUser.paymentStatus === 'paid' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-red-100 text-red-800'
@@ -117,7 +117,7 @@ const UserManagement = () => {
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Total Purchases</label>
-                  <p className="font-medium text-green-600">${selectedUser.totalPurchases.toLocaleString()}</p>
+                  <p className="font-medium text-green-600">₹{selectedUser.totalPurchases.toLocaleString()}</p>
                 </div>
               </div>
             </div>

@@ -27,7 +27,7 @@ exports.generateInvoice = asyncHandler(async (req, res) => {
   const pdfBuffer = await generateInvoicePDF(p);
   res.set({
     'Content-Type':'application/pdf',
-    'Content-Disposition': `attachment; filename="${p.invoice || 'invoice'}.pdf"`
+    'Content-Disposition': `attachment; filename="₹{p.invoice || 'invoice'}.pdf"`
   });
   res.send(pdfBuffer);
 });

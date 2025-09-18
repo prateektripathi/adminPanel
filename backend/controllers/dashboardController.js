@@ -22,14 +22,14 @@ exports.getStats = asyncHandler(async (req, res) => {
     const pendingTests = await Product.countDocuments({ qualityStatus: 'pending' });
 
     const revenueAgg = await Payment.aggregate([
-      { $match: { status: 'completed' } },
-      { $group: { _id: null, total: { $sum: "$amount" } } }
+      { ₹match: { status: 'completed' } },
+      { ₹group: { _id: null, total: { ₹sum: "₹amount" } } }
     ]);
     const totalRevenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
 
     // Notifications for admin
     const duePayments = await Payment.find({ status: 'pending' }).populate('user', 'name email');
-    const pestAlerts = await Product.find({ pestInfo: { $exists: true, $ne: "" } }).select('name pestInfo');
+    const pestAlerts = await Product.find({ pestInfo: { ₹exists: true, ₹ne: "" } }).select('name pestInfo');
 
     return res.json({
       role: 'admin',
@@ -81,7 +81,7 @@ exports.getStats = asyncHandler(async (req, res) => {
     const payments = await Payment.find({ user: req.user._id, status: 'completed' }).select('amount date');
 
     // Notifications for user: pest alerts on their products
-    const pestAlerts = await Product.find({ _id: { $in: user.purchases }, pestInfo: { $exists: true, $ne: "" } })
+    const pestAlerts = await Product.find({ _id: { ₹in: user.purchases }, pestInfo: { ₹exists: true, ₹ne: "" } })
       .select('name pestInfo');
 
     return res.json({

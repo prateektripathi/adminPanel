@@ -21,7 +21,7 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
         />
 
         {/* Modal */}
-        <div className={`inline-block w-full ${sizeClasses[size]} p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl`}>
+        <div className={`inline-block w-full ₹{sizeClasses[size]} p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl`}>
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
             <button

@@ -8,6 +8,7 @@ import {
   CreditCard, 
   BarChart3, 
   FolderOpen,
+  MessageCircle,   // ✅ new icon for support
   X
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -24,6 +25,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     { name: 'Payments/Orders', href: '/payments', icon: CreditCard, roles: ['admin', 'staff', 'user'] },
     { name: 'Reports/Analytics', href: '/reports', icon: BarChart3, roles: ['admin', 'staff'] },
     { name: 'Bucket Management', href: '/buckets', icon: FolderOpen, roles: ['admin', 'staff', 'user'] },
+    { name: 'Customer Support', href: '/support', icon: MessageCircle, roles: ['admin', 'staff', 'user'] }, // ✅ NEW
   ];
 
   const filteredNavigation = navigation.filter(item => 
@@ -39,7 +41,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
           
           <div className="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-xl">
             <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-              <h1 className="text-xl font-bold text-gray-900">AgriPanel</h1>
+              <h1 className="text-xl font-bold text-gray-900">MadhuMitra Panel</h1>
               <button
                 onClick={() => setSidebarOpen(false)}
                 className="p-2 text-gray-400 hover:text-gray-500"
@@ -76,7 +78,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       <div className="hidden lg:flex lg:w-64 lg:flex-col">
         <div className="flex flex-col flex-1 bg-white shadow-sm">
           <div className="flex items-center h-16 px-6 border-b border-gray-200">
-            <h1 className="text-xl font-bold text-gray-900">AgriPanel</h1>
+            <h1 className="text-xl font-bold text-gray-900">MadhuMitra Panel</h1>
           </div>
           
           <nav className="flex-1 px-4 py-6 space-y-2">

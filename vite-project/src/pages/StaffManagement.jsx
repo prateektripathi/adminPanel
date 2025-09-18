@@ -41,7 +41,7 @@ const StaffManagement = () => {
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Availability</label>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ₹{
                     selectedStaff.availability === 'Available' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-yellow-100 text-yellow-800'
@@ -228,7 +228,7 @@ const StaffManagement = () => {
                   <p className="text-sm text-gray-600">{staffMember.role}</p>
                 </div>
               </div>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ₹{
                 staffMember.availability === 'Available' 
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-yellow-100 text-yellow-800'
@@ -264,7 +264,7 @@ const StaffManagement = () => {
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="bg-blue-600 h-2 rounded-full"
-                  style={{ width: `${staffMember.performance}%` }}
+                  style={{ width: `₹{staffMember.performance}%` }}
                 />
               </div>
             </div>

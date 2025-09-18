@@ -11,7 +11,7 @@ exports.list = asyncHandler(async (req, res) => {
 exports.create = asyncHandler(async (req, res) => {
   const data = req.body;
   if(req.files?.images){
-    data.images = req.files.images.map(f => `/uploads/${f.filename}`);
+    data.images = req.files.images.map(f => `/uploads/₹{f.filename}`);
   }
   const p = await Product.create(data);
   res.status(201).json(p);

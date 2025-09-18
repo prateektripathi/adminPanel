@@ -70,10 +70,10 @@ const Header = ({ setSidebarOpen }) => {
                   {notifications.slice(0, 5).map((notification) => (
                     <div
                       key={notification.id}
-                      className={`p-4 border-b border-gray-100 hover:bg-gray-50 ${!notification.read ? 'bg-blue-50' : ''}`}
+                      className={`p-4 border-b border-gray-100 hover:bg-gray-50 ₹{!notification.read ? 'bg-blue-50' : ''}`}
                     >
                       <div className="flex items-start space-x-3">
-                        <div className={`w-2 h-2 rounded-full mt-2 ${notification.type === 'warning' ? 'bg-yellow-500' : notification.type === 'success' ? 'bg-green-500' : 'bg-blue-500'}`} />
+                        <div className={`w-2 h-2 rounded-full mt-2 ₹{notification.type === 'warning' ? 'bg-yellow-500' : notification.type === 'success' ? 'bg-green-500' : 'bg-blue-500'}`} />
                         <div className="flex-1">
                           <p className="font-medium text-gray-900">{notification.title}</p>
                           <p className="text-sm text-gray-600">{notification.message}</p>

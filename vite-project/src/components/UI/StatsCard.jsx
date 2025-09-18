@@ -16,12 +16,12 @@ const StatsCard = ({ title, value, icon: Icon, trend, trendValue, color = 'blue'
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
           <p className="text-3xl font-bold text-gray-900">{value}</p>
           {trend && (
-            <p className={`text-sm mt-2 ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-sm mt-2 ₹{trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
               {trend === 'up' ? '↑' : '↓'} {trendValue}
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
+        <div className={`p-3 rounded-lg ₹{colorClasses[color]}`}>
           <Icon size={24} />
         </div>
       </div>

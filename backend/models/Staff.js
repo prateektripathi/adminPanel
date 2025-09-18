@@ -1,15 +1,11 @@
 const mongoose = require('mongoose');
 
 const staffSchema = new mongoose.Schema({
-  name: String,
-  email: {type:String, unique:true},
-  role: String,
-  availability: String,
+  name: { type: String, required: true, trim: true },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  role: { type: String, enum: ['admin', 'staff'], default: 'staff' },
   assignedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  completedTasks: Number,
-  pendingTasks: Number,
-  performance: Number,
-  createdAt: { type: Date, default: Date.now }
-});
+}, { timestamps: true });
 
-module.exports = mongoose.model('Staff', staffSchema);
+// Prevent OverwriteModelError
+module.exports = mongoose.models.Staff || mongoose.model('Staff', staffSchema);

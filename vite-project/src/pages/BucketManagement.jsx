@@ -31,7 +31,7 @@ const BucketManagement = () => {
   const handleDrop = (e, targetStatus) => {
     e.preventDefault();
     // Handle moving items between buckets
-    console.log(`Moving item from ${draggedItem?.sourceStatus} to ${targetStatus}`);
+    console.log(`Moving item from ₹{draggedItem?.sourceStatus} to ₹{targetStatus}`);
     setDraggedItem(null);
   };
 
@@ -73,7 +73,7 @@ const BucketManagement = () => {
               <div className="space-y-3">
                 <div>
                   <label className="text-sm text-gray-500">Amount</label>
-                  <p className="font-medium text-green-600">${selectedOrder.amount}</p>
+                  <p className="font-medium text-green-600">₹{selectedOrder.amount}</p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Status</label>
@@ -92,20 +92,20 @@ const BucketManagement = () => {
             <div className="space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-700">Premium Seeds (2kg)</span>
-                <span className="font-medium">$99.98</span>
+                <span className="font-medium">₹99.98</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-700">Quality Test Service</span>
-                <span className="font-medium">$50.00</span>
+                <span className="font-medium">₹50.00</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-700">Shipping</span>
-                <span className="font-medium">$15.00</span>
+                <span className="font-medium">₹15.00</span>
               </div>
               <hr className="my-2" />
               <div className="flex justify-between font-bold">
                 <span>Total</span>
-                <span>${selectedOrder.amount}</span>
+                <span>₹{selectedOrder.amount}</span>
               </div>
             </div>
           </div>
@@ -236,11 +236,11 @@ const BucketManagement = () => {
         {bucketConfig.map((bucket) => (
           <div
             key={bucket.id}
-            className={`rounded-xl border-2 ${bucket.color} min-h-96`}
+            className={`rounded-xl border-2 ₹{bucket.color} min-h-96`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, bucket.id)}
           >
-            <div className={`${bucket.headerColor} p-4 rounded-t-xl border-b border-gray-200`}>
+            <div className={`₹{bucket.headerColor} p-4 rounded-t-xl border-b border-gray-200`}>
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-gray-900">{bucket.title}</h3>
                 <span className="bg-white text-gray-700 text-sm px-2 py-1 rounded-full">
@@ -273,7 +273,7 @@ const BucketManagement = () => {
                     </div>
                     <div className="flex items-center space-x-2 text-gray-600">
                       <DollarSign size={14} />
-                      <span>${order.amount}</span>
+                      <span>₹{order.amount}</span>
                     </div>
                     <div className="flex items-center space-x-2 text-gray-600">
                       <Calendar size={14} />

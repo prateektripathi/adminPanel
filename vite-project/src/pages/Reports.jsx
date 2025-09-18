@@ -89,7 +89,7 @@ const Reports = () => {
             <button
               key={item.id}
               onClick={() => setReportType(item.id)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+              className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ₹{
                 reportType === item.id
                   ? 'bg-blue-100 text-blue-700 border border-blue-300'
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
@@ -115,7 +115,7 @@ const Reports = () => {
                 <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey="sales" stroke="#3B82F6" name="Sales" strokeWidth={2} />
-                <Line type="monotone" dataKey="revenue" stroke="#10B981" name="Revenue ($)" strokeWidth={2} />
+                <Line type="monotone" dataKey="revenue" stroke="#10B981" name="Revenue (₹)" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -126,7 +126,7 @@ const Reports = () => {
               <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
                 <div>
                   <p className="text-sm text-blue-600">Total Revenue</p>
-                  <p className="text-2xl font-bold text-blue-900">$84,000</p>
+                  <p className="text-2xl font-bold text-blue-900">₹84,000</p>
                 </div>
                 <div className="text-green-600 text-sm font-medium">+12.5%</div>
               </div>
@@ -160,7 +160,7 @@ const Reports = () => {
               <Tooltip />
               <Legend />
               <Bar dataKey="sales" fill="#3B82F6" name="Units Sold" />
-              <Bar dataKey="revenue" fill="#10B981" name="Revenue ($)" />
+              <Bar dataKey="revenue" fill="#10B981" name="Revenue (₹)" />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -177,13 +177,13 @@ const Reports = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `₹{name} ₹{(percent * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
                 >
                   {productData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={`cell-₹{index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />

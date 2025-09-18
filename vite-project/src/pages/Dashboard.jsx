@@ -1,4 +1,6 @@
 import React from 'react';
+
+
 import { 
   Users, 
   UserCheck, 
@@ -14,6 +16,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import StatsCard from '../components/UI/StatsCard';
+import { FaRupeeSign } from 'react-icons/fa';
+
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -58,8 +62,9 @@ const Dashboard = () => {
         />
         <StatsCard
           title="Revenue"
-          value={`$${stats.revenue.toLocaleString()}`}
-          icon={DollarSign}
+          value={`₹₹{stats.revenue.toLocaleString()}`}
+        icon={FaRupeeSign}
+
           trend="up"
           trendValue="23% this month"
           color="green"
@@ -245,7 +250,7 @@ const Dashboard = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Total Purchases</span>
-                <span className="font-medium">$2,500</span>
+                <span className="font-medium">₹2,500</span>
               </div>
             </div>
           </div>

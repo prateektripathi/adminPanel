@@ -9,11 +9,11 @@ exports.generateInvoicePDF = (payment) => {
 
     doc.fontSize(20).text('Invoice', {align:'center'});
     doc.moveDown();
-    doc.fontSize(12).text(`Invoice: ${payment.invoice || 'N/A'}`);
-    doc.text(`Date: ${payment.date.toISOString().slice(0,10)}`);
-    doc.text(`Customer: ${payment.userName || payment.user?.name}`);
+    doc.fontSize(12).text(`Invoice: ₹{payment.invoice || 'N/A'}`);
+    doc.text(`Date: ₹{payment.date.toISOString().slice(0,10)}`);
+    doc.text(`Customer: ₹{payment.userName || payment.user?.name}`);
     doc.moveDown();
-    doc.text(`Amount: $${payment.amount}`);
+    doc.text(`Amount: ₹₹{payment.amount}`);
     doc.moveDown();
     doc.text('Thank you for your payment.');
     doc.end();

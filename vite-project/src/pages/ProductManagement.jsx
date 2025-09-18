@@ -43,7 +43,7 @@ const ProductManagement = () => {
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Price</label>
-                  <p className="font-medium text-green-600">${selectedProduct.price}</p>
+                  <p className="font-medium text-green-600">₹{selectedProduct.price}</p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-500">Stock</label>
@@ -63,7 +63,7 @@ const ProductManagement = () => {
               <div className="space-y-3">
                 <div>
                   <label className="text-sm text-gray-500">Quality Status</label>
-                  <span className={`block px-2 py-1 rounded-full text-xs font-medium w-fit ${
+                  <span className={`block px-2 py-1 rounded-full text-xs font-medium w-fit ₹{
                     selectedProduct.qualityStatus === 'Approved' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-yellow-100 text-yellow-800'
@@ -165,7 +165,7 @@ const ProductManagement = () => {
         <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Price ($)
+              Price (₹)
             </label>
             <input
               type="number"
@@ -273,7 +273,7 @@ const ProductManagement = () => {
                   <h3 className="font-semibold text-gray-900">{product.name}</h3>
                   <p className="text-sm text-gray-500">{product.category}</p>
                 </div>
-                <span className="text-lg font-bold text-green-600">${product.price}</span>
+                <span className="text-lg font-bold text-green-600">₹{product.price}</span>
               </div>
 
               <div className="space-y-2 mb-4">
@@ -283,7 +283,7 @@ const ProductManagement = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Quality Status:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ₹{
                     product.qualityStatus === 'Approved' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-yellow-100 text-yellow-800'
@@ -293,7 +293,7 @@ const ProductManagement = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Pest Info:</span>
-                  <span className={`font-medium ${
+                  <span className={`font-medium ₹{
                     product.pestInfo === 'None detected' ? 'text-green-600' : 'text-yellow-600'
                   }`}>
                     {product.pestInfo}

@@ -1,4 +1,4 @@
-# AgriPanel - Agricultural Management System
+# MadhuMitra Panel - Agricultural Management System
 
 A comprehensive React-based administrative panel for agricultural businesses with role-based access control, user management, product tracking, and analytics.
 

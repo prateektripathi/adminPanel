@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       // Try backend first
-      const res = await axios.post(`${API_URL}/login`, { email, password });
+      const res = await axios.post(`₹{API_URL}/login`, { email, password });
       const userData = res.data.user;
       setUser(userData);
       localStorage.setItem("user", JSON.stringify(userData));

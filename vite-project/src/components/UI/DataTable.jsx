@@ -167,7 +167,7 @@ const DataTable = ({
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-2 rounded-lg ${
+                className={`px-3 py-2 rounded-lg ₹{
                   currentPage === page
                     ? 'bg-blue-600 text-white'
                     : 'border border-gray-200 hover:bg-gray-50'

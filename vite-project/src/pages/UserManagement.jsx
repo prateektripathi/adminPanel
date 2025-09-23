@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Eye, Edit, Trash2, UserPlus, Upload, Download } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
@@ -202,8 +202,7 @@ const UserManagement = () => {
               type="tel"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
             />
-          </div>
-          <div>
+          </div> <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Assigned Staff
             </label>

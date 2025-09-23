@@ -89,7 +89,7 @@ connectDB();
 
 // ================== Routes ==================
 // Add your Support Routes here
-app.use('/api/support', require('./routes/SupportRoutes')); // <--- ADD THIS LINE
+app.use('/api/support', require('./routes/support')); // <--- ADD THIS LINE
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/staff', require('./routes/staff'));

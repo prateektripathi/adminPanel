@@ -1,5 +1,5 @@
 // controllers/SupportController.js
-const SupportQuery = require('../models/SupportModel');
+const SupportQuery = require('../models/support');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');

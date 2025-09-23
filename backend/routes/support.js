@@ -1,44 +1,33 @@
-// server.js (or app.js)
+// routes/SupportRoutes.js
 const express = require('express');
-const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const path = require('path');
+const {
+  createSupportQuery,
+  getAllSupportQueries,
+  getSupportQueryById,
+  updateQueryStatus,
+  addChatMessage,
+  uploadFileAndAddMessage,
+  uploadMiddleware, // Import the multer middleware
+  markQueryAsRead,
+  simulateUserResponse
+} = require('../controllers/supportController');
 
-dotenv.config(); // Load environment variables from .env file
+const router = express.Router();
 
-const app = express();
+// Public route for users to submit a new query (e.g., from a contact form)
+router.post('/queries', createSupportQuery);
 
-// --- Database Connection ---
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log('MongoDB Connected...');
-  } catch (err) {
-    console.error(err.message);
-    process.exit(1); // Exit process with failure
-  }
-};
-connectDB();
+// Admin routes (would typically be protected with authentication middleware)
+router.get('/queries', getAllSupportQueries);
+router.get('/queries/:id', getSupportQueryById);
+router.put('/queries/:id/status', updateQueryStatus);
+router.put('/queries/:id/mark-read', markQueryAsRead); // New route to mark as read
 
-// --- Middleware ---
-app.use(cors()); // Enable CORS for all routes
-app.use(express.json()); // Body parser for JSON data
+router.post('/queries/:id/messages', addChatMessage);
+router.post('/queries/:id/upload', uploadMiddleware.single('file'), uploadFileAndAddMessage); // Use multer middleware here
 
-// Serve static files from the 'uploads' directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Route for simulating user response (optional, can be triggered by admin action)
+router.post('/queries/:id/simulate-user-response', simulateUserResponse);
 
-// --- Routes ---
-app.use('/api/support', require('./routes/SupportRoutes'));
 
-// --- Basic Route ---
-app.get('/', (req, res) => {
-  res.send('Customer Support System Backend API is running...');
-});
-
-// --- Server Listen ---
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+module.exports = router;

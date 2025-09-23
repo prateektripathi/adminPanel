@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const connectDB = require('./config/db');
+const mongoose = require('mongoose'); // Mongoose required for connection
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -19,7 +19,17 @@ app.use(
 );
 
 // ================== Database ==================
-connectDB(process.env.MONGODB_URI);
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI);
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
+  } catch (error) {
+    console.error(`❌ MongoDB connection error: ${error}`);
+    process.exit(1);
+  }
+};
+
+connectDB();
 
 // ================== Routes ==================
 app.use('/api/auth', require('./routes/auth'));
@@ -38,5 +48,5 @@ app.use(errorHandler);
 // ================== Start Server ==================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running in ₹{process.env.NODE_ENV || 'development'} mode on port ₹{PORT}`);
+  console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });

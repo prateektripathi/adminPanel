@@ -13,20 +13,20 @@ const getReports = asyncHandler(async (req, res) => {
   const sales = await Payment.countDocuments({ status: 'completed' });
 
   const revenueAgg = await Payment.aggregate([
-    { ₹match: { status: 'completed' } },
-    { ₹group: { _id: null, total: { ₹sum: '₹amount' } } },
+    { $match: { status: 'completed' } },
+    { $group: { _id: null, total: { $sum: "$amount" } } },
   ]);
   const revenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
 
   const topProducts = await Product.aggregate([
-    { ₹group: { _id: '₹name', sold: { ₹sum: 1 } } },
-    { ₹sort: { sold: -1 } },
-    { ₹limit: 5 },
+    { $group: { _id: "$name", sold: { $sum: 1 } } },
+    { $sort: { sold: -1 } },
+    { $limit: 5 },
   ]);
 
   const staffPerformance = await Staff.aggregate([
-    { ₹project: { name: 1, assignedUsers: 1, count: { ₹size: '₹assignedUsers' } } },
-    { ₹sort: { count: -1 } },
+    { $project: { name: 1, assignedUsers: 1, count: { $size: "$assignedUsers" } } },
+    { $sort: { count: -1 } },
   ]);
 
   res.json({ sales, revenue, topProducts, staffPerformance });
@@ -60,13 +60,13 @@ const customReport = asyncHandler(async (req, res) => {
     const parser = new Parser();
     const csv = parser.parse(data.map(d => d.toObject()));
     res.header('Content-Type', 'text/csv');
-    res.attachment(`₹{type}-report.csv`);
+    res.attachment(`${type}-report.csv`);
     return res.send(csv);
   }
 
   if (format === 'excel') {
     const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet(`₹{type} Report`);
+    const sheet = workbook.addWorksheet(`${type} Report`);
 
     if (data.length > 0) {
       sheet.columns = Object.keys(data[0].toObject()).map(key => ({
@@ -78,7 +78,7 @@ const customReport = asyncHandler(async (req, res) => {
     }
 
     res.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.attachment(`₹{type}-report.xlsx`);
+    res.attachment(`${type}-report.xlsx`);
 
     await workbook.xlsx.write(res);
     return res.end();
@@ -87,10 +87,10 @@ const customReport = asyncHandler(async (req, res) => {
   if (format === 'pdf') {
     const doc = new PDFDocument();
     res.header('Content-Type', 'application/pdf');
-    res.attachment(`₹{type}-report.pdf`);
+    res.attachment(`${type}-report.pdf`);
 
     doc.pipe(res);
-    doc.fontSize(16).text(`₹{type.toUpperCase()} REPORT`, { align: 'center' });
+    doc.fontSize(16).text(`${type.toUpperCase()} REPORT`, { align: 'center' });
     doc.moveDown();
 
     data.forEach(d => {

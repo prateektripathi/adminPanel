@@ -8,13 +8,12 @@ const Notification = require('../models/Notification');
 exports.getStats = asyncHandler(async (req, res) => {
   const role = req.user.role;
 
-  // Timeline (last 10 notifications for activity feed)
+  // Timeline (last 10 notifications)
   const timeline = await Notification.find()
     .sort({ createdAt: -1 })
     .limit(10)
     .select('title message type createdAt');
 
-  // Role: Admin
   if (role === 'admin') {
     const totalUsers = await User.countDocuments({ role: 'user' });
     const totalStaff = await Staff.countDocuments();
@@ -22,14 +21,13 @@ exports.getStats = asyncHandler(async (req, res) => {
     const pendingTests = await Product.countDocuments({ qualityStatus: 'pending' });
 
     const revenueAgg = await Payment.aggregate([
-      { ₹match: { status: 'completed' } },
-      { ₹group: { _id: null, total: { ₹sum: "₹amount" } } }
+      { $match: { status: 'completed' } },
+      { $group: { _id: null, total: { $sum: "$amount" } } }
     ]);
     const totalRevenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
 
-    // Notifications for admin
     const duePayments = await Payment.find({ status: 'pending' }).populate('user', 'name email');
-    const pestAlerts = await Product.find({ pestInfo: { ₹exists: true, ₹ne: "" } }).select('name pestInfo');
+    const pestAlerts = await Product.find({ pestInfo: { $exists: true, $ne: "" } }).select('name pestInfo');
 
     return res.json({
       role: 'admin',
@@ -49,13 +47,11 @@ exports.getStats = asyncHandler(async (req, res) => {
     });
   }
 
-  // Role: Staff
   if (role === 'staff') {
     const assignedUsers = await User.countDocuments({ assignedStaff: req.user._id });
     const assignedProducts = await Product.countDocuments({ assignedStaff: req.user._id });
     const pendingTests = await Product.countDocuments({ assignedStaff: req.user._id, qualityStatus: 'pending' });
 
-    // Notifications for staff: tasks assigned
     const tasks = await Notification.find({ type: 'task', 'meta.staff': req.user._id })
       .sort({ createdAt: -1 })
       .limit(5);
@@ -68,20 +64,16 @@ exports.getStats = asyncHandler(async (req, res) => {
         { name: "View User Details", action: "/api/users/:id" },
         { name: "Mark Task Completed", action: "/api/staff/:id/tasks" }
       ],
-      notifications: {
-        tasks
-      },
+      notifications: { tasks },
       timeline
     });
   }
 
-  // Role: User
   if (role === 'user') {
     const user = await User.findById(req.user._id).populate('assignedStaff', 'name email');
     const payments = await Payment.find({ user: req.user._id, status: 'completed' }).select('amount date');
 
-    // Notifications for user: pest alerts on their products
-    const pestAlerts = await Product.find({ _id: { ₹in: user.purchases }, pestInfo: { ₹exists: true, ₹ne: "" } })
+    const pestAlerts = await Product.find({ _id: { $in: user.purchases }, pestInfo: { $exists: true, $ne: "" } })
       .select('name pestInfo');
 
     return res.json({
@@ -99,9 +91,7 @@ exports.getStats = asyncHandler(async (req, res) => {
         { name: "Edit Profile", action: "/api/users/me" },
         { name: "Raise Support Ticket", action: "/api/support" }
       ],
-      notifications: {
-        pestAlerts
-      },
+      notifications: { pestAlerts },
       timeline
     });
   }

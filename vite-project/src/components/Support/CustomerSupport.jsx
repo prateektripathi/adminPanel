@@ -21,7 +21,12 @@ import {
   Search,
   Filter,
   Eye,
-  Archive
+  Archive,
+  Camera,
+  Play,
+  Pause,
+  Square,
+  Download
 } from "lucide-react";
 
 const CustomerSupportSystem = () => {
@@ -86,12 +91,21 @@ const CustomerSupportSystem = () => {
   const [filterPriority, setFilterPriority] = useState("all");
   const [isMinimized, setIsMinimized] = useState(false);
   const [file, setFile] = useState(null);
-  const [isCallActive, setIsCallActive] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
+  
+  // Voice and Camera states
   const [isRecording, setIsRecording] = useState(false);
+  const [isCameraOn, setIsCameraOn] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [recordedChunks, setRecordedChunks] = useState([]);
+  const [recordingType, setRecordingType] = useState(null); // 'audio' or 'video'
+  const [stream, setStream] = useState(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [recordingTimer, setRecordingTimer] = useState(null);
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   // Calculate total unread messages
   const totalUnreadMessages = supportQueries.reduce((total, query) => total + query.unreadCount, 0);
@@ -116,6 +130,15 @@ const CustomerSupportSystem = () => {
     scrollToBottom();
   }, [chatMessages]);
 
+  // Cleanup media stream on unmount
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]);
+
   const getPriorityColor = (priority) => {
     switch(priority) {
       case 'high': return 'bg-red-100 text-red-800';
@@ -131,6 +154,177 @@ const CustomerSupportSystem = () => {
       case 'in-progress': return 'bg-blue-100 text-blue-800';
       case 'resolved': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // Camera Functions
+  const startCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480 },
+        audio: false
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+      
+      setStream(mediaStream);
+      setIsCameraOn(true);
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      alert('Camera access denied or not available');
+    }
+  };
+
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    setIsCameraOn(false);
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  const capturePhoto = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    const context = canvas.getContext('2d');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0);
+
+    canvas.toBlob((blob) => {
+      const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' });
+      setFile(file);
+    }, 'image/jpeg', 0.9);
+  };
+
+  // Voice Recording Functions
+  const startVoiceRecording = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: false
+      });
+
+      const recorder = new MediaRecorder(mediaStream);
+      const chunks = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/wav' });
+        const file = new File([blob], `voice_${Date.now()}.wav`, { type: 'audio/wav' });
+        setFile(file);
+        mediaStream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setRecordedChunks(chunks);
+      setIsRecording(true);
+      setRecordingType('audio');
+      setRecordingTime(0);
+
+      // Start timer
+      const timer = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+      setRecordingTimer(timer);
+
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      alert('Microphone access denied or not available');
+    }
+  };
+
+  const startVideoRecording = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480 },
+        audio: true
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+
+      const recorder = new MediaRecorder(mediaStream);
+      const chunks = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const file = new File([blob], `video_${Date.now()}.webm`, { type: 'video/webm' });
+        setFile(file);
+        mediaStream.getTracks().forEach(track => track.stop());
+        if (videoRef.current) {
+          videoRef.current.srcObject = null;
+        }
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setRecordedChunks(chunks);
+      setIsRecording(true);
+      setRecordingType('video');
+      setIsCameraOn(true);
+      setStream(mediaStream);
+      setRecordingTime(0);
+
+      // Start timer
+      const timer = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+      setRecordingTimer(timer);
+
+    } catch (error) {
+      console.error('Error accessing camera/microphone:', error);
+      alert('Camera/microphone access denied or not available');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    
+    if (recordingTimer) {
+      clearInterval(recordingTimer);
+      setRecordingTimer(null);
+    }
+
+    setIsRecording(false);
+    setRecordingType(null);
+    setRecordingTime(0);
+    
+    if (recordingType === 'video') {
+      setIsCameraOn(false);
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        setStream(null);
+      }
     }
   };
 
@@ -304,6 +498,45 @@ const CustomerSupportSystem = () => {
             </div>
           </div>
 
+          {/* Camera/Video Preview */}
+          {(isCameraOn || isRecording) && (
+            <div className="bg-black p-4">
+              <div className="relative max-w-md mx-auto">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  muted
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+                {isRecording && recordingType === 'video' && (
+                  <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm flex items-center space-x-1">
+                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                    <span>REC {formatTime(recordingTime)}</span>
+                  </div>
+                )}
+                {isCameraOn && !isRecording && (
+                  <button
+                    onClick={capturePhoto}
+                    className="absolute bottom-2 right-2 bg-white text-gray-800 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                    title="Capture Photo"
+                  >
+                    <Camera size={20} />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Recording Status for Audio */}
+          {isRecording && recordingType === 'audio' && (
+            <div className="bg-red-50 border-b px-4 py-3">
+              <div className="flex items-center justify-center space-x-2 text-red-600">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="font-medium">Recording Audio: {formatTime(recordingTime)}</span>
+              </div>
+            </div>
+          )}
+
           {/* Messages Container */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
             {chatMessages.map((msg) => (
@@ -321,6 +554,14 @@ const CustomerSupportSystem = () => {
                     
                     {msg.mediaType === "image" && (
                       <img src={msg.url} alt="Shared image" className="max-w-full h-32 object-cover rounded-lg" />
+                    )}
+                    
+                    {msg.mediaType === "video" && (
+                      <video src={msg.url} controls className="max-w-full h-32 rounded-lg" />
+                    )}
+                    
+                    {msg.mediaType === "audio" && (
+                      <audio src={msg.url} controls className="max-w-full" />
                     )}
                     
                     {msg.fileName && (
@@ -344,6 +585,13 @@ const CustomerSupportSystem = () => {
               <div className="flex items-center space-x-2">
                 <Paperclip size={16} className="text-gray-500" />
                 <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                {file.type.startsWith('image/') && (
+                  <img 
+                    src={URL.createObjectURL(file)} 
+                    alt="Preview" 
+                    className="w-8 h-8 object-cover rounded"
+                  />
+                )}
               </div>
               <button
                 onClick={() => setFile(null)}
@@ -365,13 +613,75 @@ const CustomerSupportSystem = () => {
                 accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
               />
               
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Attach file"
-              >
-                <Paperclip size={20} />
-              </button>
+              {/* Media Controls */}
+              <div className="flex items-center space-x-1">
+                {/* File Attachment */}
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  title="Attach file"
+                >
+                  <Paperclip size={20} />
+                </button>
+                
+                {/* Camera Controls */}
+                {!isCameraOn ? (
+                  <button
+                    onClick={startCamera}
+                    className="p-2 text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                    title="Start Camera"
+                    disabled={isRecording}
+                  >
+                    <Camera size={20} />
+                  </button>
+                ) : (
+                  <button
+                    onClick={stopCamera}
+                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                    title="Stop Camera"
+                  >
+                    <VideoOff size={20} />
+                  </button>
+                )}
+                
+                {/* Voice Recording */}
+                {!isRecording ? (
+                  <button
+                    onClick={startVoiceRecording}
+                    className="p-2 text-green-500 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
+                    title="Start Voice Recording"
+                  >
+                    <Mic size={20} />
+                  </button>
+                ) : recordingType === 'audio' ? (
+                  <button
+                    onClick={stopRecording}
+                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors animate-pulse"
+                    title="Stop Recording"
+                  >
+                    <Square size={20} />
+                  </button>
+                ) : null}
+                
+                {/* Video Recording */}
+                {!isRecording ? (
+                  <button
+                    onClick={startVideoRecording}
+                    className="p-2 text-purple-500 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-colors"
+                    title="Start Video Recording"
+                  >
+                    <Video size={20} />
+                  </button>
+                ) : recordingType === 'video' ? (
+                  <button
+                    onClick={stopRecording}
+                    className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors animate-pulse"
+                    title="Stop Recording"
+                  >
+                    <Square size={20} />
+                  </button>
+                ) : null}
+              </div>
               
               <div className="flex-1">
                 <textarea
@@ -381,14 +691,15 @@ const CustomerSupportSystem = () => {
                   placeholder="Type your response..."
                   className="w-full resize-none border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows="2"
+                  disabled={isRecording}
                 />
               </div>
               
               <button
                 onClick={sendMessage}
-                disabled={!newMessage.trim() && !file}
+                disabled={(!newMessage.trim() && !file) || isRecording}
                 className={`p-2 rounded-lg transition-all duration-200 ${
-                  (newMessage.trim() || file)
+                  (newMessage.trim() || file) && !isRecording
                     ? 'bg-blue-600 text-white hover:bg-blue-700 hover:scale-105'
                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                 }`}
@@ -398,6 +709,9 @@ const CustomerSupportSystem = () => {
             </div>
           </div>
         </div>
+
+        {/* Hidden canvas for photo capture */}
+        <canvas ref={canvasRef} style={{ display: 'none' }} />
       </div>
     );
   };
@@ -416,7 +730,7 @@ const CustomerSupportSystem = () => {
               </div>
             )}
           </h1>
-          <p className="text-gray-600 mt-2">Manage customer queries and provide support</p>
+          <p className="text-gray-600 mt-2">Manage customer queries and provide support with multimedia</p>
         </div>
       </div>
 

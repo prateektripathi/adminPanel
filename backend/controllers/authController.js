@@ -5,6 +5,7 @@ const User = require('../models/User');
 const signToken = (user) => jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
 exports.login = asyncHandler(async (req, res) => {
+  console.log("Login attempt:", req.body);
   const { email, password } = req.body;
   const user = await User.findOne({ email });
   if(!user) return res.status(401).json({ message: 'Invalid credentials' });
@@ -18,7 +19,7 @@ exports.register = asyncHandler(async (req, res) => {
   const exists = await User.findOne({ email });
   if(exists) return res.status(400).json({ message: 'User exists' });
   const user = await User.create({ name, email, password, role: role || 'user' });
-  res.status(201).json({ user: { id: user._id, name: user.name, email: user.email, role: user.role }, token: signToken(user) });
+  res.status(201).json({success:true, user: { id: user._id, name: user.name, email: user.email, role: user.role }, token: signToken(user) });
 });
 
 exports.me = asyncHandler(async (req, res) => {

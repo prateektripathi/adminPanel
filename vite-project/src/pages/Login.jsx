@@ -126,7 +126,6 @@
 
 // export default Login;
 
-
 // src/pages/Login.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
@@ -134,28 +133,69 @@ import { Leaf } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
   const { login } = useAuth();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    const result = await login(email, password);
-    if (!result.success) {
-      setError(result.message || "Invalid credentials");
-    }
-    
-    setLoading(false);
+  // Handle input change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
+  // Simple frontend validation
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    if (!formData.password) newErrors.password = "Password is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Submit login
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
+
+  setLoading(true);
+  setErrors({});
+
+  try {
+    // Call login from AuthContext just like you do in Signup
+    const result = await login(formData.email, formData.password);
+
+    if (!result.success) {
+      setErrors({ submit: result.message || "Login failed" });
+    } else {
+      // Optional: you can show a success toast or redirect
+      console.log("Login successful!");
+    }
+  } catch (error) {
+    console.error("Error logging in:", error);
+    setErrors({
+      submit:
+        error.response?.data?.message ||
+        "Something went wrong. Please try again.",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+ 
+
+  // Demo accounts for quick login
   const demoAccounts = [
-    { role: "Admin", email: "admin@example.com", password: "password" },
-    { role: "Staff", email: "staff@example.com", password: "password" },
+    { role: "Admin", email: "admin@example.com", password: "admin123" },
+    { role: "Staff", email: "staff@example.com", password: "staff123" },
+    { role: "User", email: "user@example.com", password: "user123" },
   ];
 
   return (
@@ -167,7 +207,9 @@ const Login = () => {
               <Leaf size={32} className="text-white" />
             </div>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">MadhuMitra Panel</h2>
+          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+            MadhuMitra Panel
+          </h2>
           <p className="mt-2 text-sm text-gray-600">
             Sign in to your agricultural management system
           </p>
@@ -175,95 +217,85 @@ const Login = () => {
 
         <div className="bg-white rounded-xl shadow-lg p-8">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
+            {errors.submit && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {error}
+                {errors.submit}
               </div>
             )}
 
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label className="block text-sm font-medium text-gray-700">
                 Email address
               </label>
               <input
-                id="email"
                 name="email"
                 type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
+                value={formData.email}
+                onChange={handleChange}
+                className={`mt-1 block w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 ${
+                  errors.email ? "border-red-300" : "border-gray-300"
+                }`}
+                placeholder="Enter your email"
               />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+              )}
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <input
-                id="password"
                 name="password"
                 type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500"
+                value={formData.password}
+                onChange={handleChange}
+                className={`mt-1 block w-full px-3 py-2 border rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 ${
+                  errors.password ? "border-red-300" : "border-gray-300"
+                }`}
+                placeholder="Enter your password"
               />
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+              )}
             </div>
 
             <button
               type="submit"
               disabled={loading}
               className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white transition-colors ${
-                loading 
-                  ? 'bg-gray-400 cursor-not-allowed' 
-                  : 'bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500'
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               }`}
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
 
           {/* Demo Accounts */}
-          <div className="mt-8">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Demo Accounts</span>
-              </div>
-            </div>
-
-            <div className="mt-6 space-y-3">
-              {demoAccounts.map((account) => (
-                <button
-                  key={account.role}
-                  onClick={() => {
-                    setEmail(account.email);
-                    setPassword(account.password);
-                  }}
-                  className="w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <div className="font-medium text-gray-900">{account.role}</div>
-                  <div className="text-sm text-gray-500">{account.email}</div>
-                </button>
-              ))}
-            </div>
+          <div className="mt-6 space-y-3">
+            {demoAccounts.map((acc) => (
+              <button
+                key={acc.role}
+                onClick={() =>
+                  setFormData({ email: acc.email, password: acc.password })
+                }
+                className="w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <div className="font-medium text-gray-900">{acc.role}</div>
+                <div className="text-sm text-gray-500">{acc.email}</div>
+              </button>
+            ))}
           </div>
 
           {/* Signup Link */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link 
-                to="/signup" 
+              Don't have an account?{" "}
+              <Link
+                to="/signup"
                 className="font-medium text-green-600 hover:text-green-500"
               >
                 Sign up here

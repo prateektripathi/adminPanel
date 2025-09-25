@@ -52,23 +52,40 @@
 // });
 
 
-// server.js (your main application file)
+// server.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const mongoose = require('mongoose'); // Mongoose required for connection
+const mongoose = require('mongoose');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
 
 // ================== Middleware ==================
-app.use(cors());
+
+// Read allowed origins from .env (comma separated)
+const allowedOrigins = (process.env.CORS_ORIGIN || '').split(',');
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // allow requests with no origin (like curl or Postman)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true, // allow cookies / auth headers if needed
+  })
+);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Static uploads folder
-// Ensure your UPLOAD_DIR in .env points to where Multer saves files
+// ================== Static Files ==================
 app.use(
   '/uploads',
   express.static(path.join(__dirname, process.env.UPLOAD_DIR || 'uploads'))
@@ -88,8 +105,6 @@ const connectDB = async () => {
 connectDB();
 
 // ================== Routes ==================
-// Add your Support Routes here
-app.use('/api/support', require('./routes/support')); // <--- ADD THIS LINE
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/staff', require('./routes/staff'));
@@ -97,8 +112,9 @@ app.use('/api/products', require('./routes/products'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/buckets', require('./routes/buckets'));
 app.use('/api/reports', require('./routes/reports'));
-app.use('/api/dashboard', require('./routes/dashboard'));
 app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/support', require('./routes/support')); // customer support routes
 
 // ================== Error Handler ==================
 app.use(errorHandler);

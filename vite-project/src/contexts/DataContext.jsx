@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const DataContext = createContext();
 
@@ -11,7 +11,9 @@ export const useData = () => {
 };
 
 export const DataProvider = ({ children }) => {
-  // Mock data
+  // ==========================
+  // Mock Data
+  // ==========================
   const [users, setUsers] = useState([
     {
       id: 1,
@@ -76,8 +78,10 @@ export const DataProvider = ({ children }) => {
       pestInfo: 'None detected',
       assignedStaff: 'Sarah Wilson',
       price: 49.99,
-      image: 'https://images.pexels.com/photos/416978/pexels-photo-416978.jpeg?auto=compress&cs=tinysrgb&w=300',
-      lastTested: '2024-01-10'
+      image:
+        'https://images.pexels.com/photos/416978/pexels-photo-416978.jpeg?auto=compress&cs=tinysrgb&w=300',
+      lastTested: '2024-01-10',
+      testLogs: []
     },
     {
       id: 2,
@@ -88,8 +92,10 @@ export const DataProvider = ({ children }) => {
       pestInfo: 'Minor contamination',
       assignedStaff: 'Mike Johnson',
       price: 29.99,
-      image: 'https://images.pexels.com/photos/1301856/pexels-photo-1301856.jpeg?auto=compress&cs=tinysrgb&w=300',
-      lastTested: '2024-01-12'
+      image:
+        'https://images.pexels.com/photos/1301856/pexels-photo-1301856.jpeg?auto=compress&cs=tinysrgb&w=300',
+      lastTested: '2024-01-12',
+      testLogs: []
     }
   ]);
 
@@ -121,27 +127,76 @@ export const DataProvider = ({ children }) => {
       { id: 1, title: 'Order #1001', user: 'John Doe', amount: 250, date: '2024-01-20' },
       { id: 2, title: 'Order #1002', user: 'Jane Smith', amount: 180, date: '2024-01-21' }
     ],
-    inProgress: [
-      { id: 3, title: 'Order #1003', user: 'Bob Wilson', amount: 320, date: '2024-01-18' }
-    ],
-    completed: [
-      { id: 4, title: 'Order #1004', user: 'Alice Brown', amount: 150, date: '2024-01-15' }
-    ]
+    inProgress: [{ id: 3, title: 'Order #1003', user: 'Bob Wilson', amount: 320, date: '2024-01-18' }],
+    completed: [{ id: 4, title: 'Order #1004', user: 'Alice Brown', amount: 150, date: '2024-01-15' }]
   });
 
-  const stats = {
-    totalUsers: users.length,
-    totalStaff: staff.length,
-    productsSold: 157,
-    pendingTests: 12,
-    revenue: 45000,
-    thisMonth: {
-      users: 23,
-      sales: 12500,
-      tests: 89
-    }
+  // ==========================
+  // Stats
+  // ==========================
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalStaff: 0,
+    productsSold: 0,
+    pendingTests: 0,
+    revenue: 0,
+    thisMonth: { users: 0, sales: 0, tests: 0 }
+  });
+
+  // ==========================
+  // Functions
+  // ==========================
+
+  const fetchAllData = async () => {
+    // In real app -> API calls
+    return { users, staff, products, payments, buckets };
   };
 
+  const addProduct = (newProduct) => {
+    setProducts((prev) => [...prev, { ...newProduct, id: Date.now(), testLogs: [] }]);
+  };
+
+  const updateProduct = (productId, updates) => {
+    setProducts((prev) => prev.map((p) => (p.id === productId ? { ...p, ...updates } : p)));
+  };
+
+  const addTestLog = (productId, log) => {
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === productId ? { ...p, testLogs: [...(p.testLogs || []), log] } : p
+      )
+    );
+  };
+
+  const refreshStats = () => {
+    const newStats = {
+      totalUsers: users.length,
+      totalStaff: staff.length,
+      productsSold: products.length * 10, // fake metric
+      pendingTests: products.filter((p) => p.qualityStatus !== 'Approved').length,
+      revenue: payments.reduce(
+        (sum, p) => sum + (p.status === 'completed' ? p.amount : 0),
+        0
+      ),
+      thisMonth: {
+        users: users.length,
+        sales: payments.reduce((sum, p) => sum + (p.amount || 0), 0),
+        tests: products.reduce((sum, p) => sum + (p.testLogs?.length || 0), 0)
+      }
+    };
+
+    setStats(newStats);
+    return newStats;
+  };
+
+  // Auto-refresh stats whenever data changes
+  useEffect(() => {
+    refreshStats();
+  }, [users, staff, products, payments]);
+
+  // ==========================
+  // Context Value
+  // ==========================
   const value = {
     users,
     setUsers,
@@ -153,12 +208,14 @@ export const DataProvider = ({ children }) => {
     setPayments,
     buckets,
     setBuckets,
-    stats
+    stats,
+    setStats,
+    fetchAllData,
+    addProduct,
+    updateProduct,
+    addTestLog,
+    refreshStats
   };
 
-  return (
-    <DataContext.Provider value={value}>
-      {children}
-    </DataContext.Provider>
-  );
+  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
 };

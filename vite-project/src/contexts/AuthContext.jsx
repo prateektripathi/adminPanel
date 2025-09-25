@@ -97,9 +97,9 @@
 //   );
 // };
 
-// src/contexts/AuthContext.jsx
+/// src/contexts/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ Add this import
+import { useNavigate } from "react-router-dom";
 import { authService } from "../services/api";
 
 const AuthContext = createContext();
@@ -114,86 +114,81 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // ✅ Add navigate hook
+  const navigate = useNavigate();
 
-  // Load user from localStorage on mount
+  // Load user & token from localStorage
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
+    const savedData = localStorage.getItem("auth");
+    if (savedData) {
       try {
-        const userData = JSON.parse(savedUser);
-        setUser(userData.user);
+        const { user: savedUser, token: savedToken } = JSON.parse(savedData);
+        setUser(savedUser);
+        setToken(savedToken);
       } catch (error) {
-        console.error("Error parsing user data:", error);
-        localStorage.removeItem("user");
+        console.error("Error parsing auth data:", error);
+        localStorage.removeItem("auth");
       }
     }
     setLoading(false);
   }, []);
 
-  // Login function
+  // Save user & token to localStorage
+  const saveAuthData = (user, token) => {
+    setUser(user);
+    setToken(token);
+    localStorage.setItem("auth", JSON.stringify({ user, token }));
+  };
+
+  // Login
   const login = async (email, password) => {
     try {
       setLoading(true);
       const response = await authService.login({ email, password });
-      setUser(response.user);
-      
-      // ✅ Navigate to dashboard after successful login
-      navigate('/dashboard');
-      
-      return { success: true };
+      if (response.token) {
+        saveAuthData(response.user, response.token);
+        navigate("/dashboard");
+        return { success: true };
+      }
+      return { success: false, message: response.message || "Login failed" };
     } catch (error) {
       console.error("Login error:", error);
-      return {
-        success: false,
-        message: error.response?.data?.message || "Login failed",
-      };
+      return { success: false, message: error.response?.data?.message || "Login failed" };
     } finally {
       setLoading(false);
     }
   };
 
-  // Register function
+  // Register
   const register = async (userData) => {
     try {
       setLoading(true);
       const response = await authService.register(userData);
-      setUser(response.user);
-      
-      // ✅ Navigate to dashboard after successful registration
-      navigate('/dashboard');
-      
-      return { success: true };
+      if (response.token) {
+        saveAuthData(response.user, response.token);
+        navigate("/dashboard");
+        return { success: true };
+      }
+      return { success: false, message: response.message || "Registration failed" };
     } catch (error) {
       console.error("Registration error:", error);
-      return {
-        success: false,
-        message: error.response?.data?.message || "Registration failed",
-      };
+      return { success: false, message: error.response?.data?.message || "Registration failed" };
     } finally {
       setLoading(false);
     }
   };
 
-  // Logout function
+  // Logout
   const logout = () => {
     setUser(null);
-    authService.logout();
-    // ✅ Navigate to login after logout
-    navigate('/login');
-  };
-
-  const value = {
-    user,
-    login,
-    logout,
-    register,
-    loading
+    setToken(null);
+    localStorage.removeItem("auth");
+    navigate("/login");
   };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

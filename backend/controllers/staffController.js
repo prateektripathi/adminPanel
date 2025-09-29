@@ -1,4 +1,4 @@
-const Staff = require('../models/Staff'); // Just require, no mongoose.model() here
+const Staff = require('../models/staff'); // Just require, no mongoose.model() here
 
 // Get all staff
 const getStaff = async (req, res) => {

@@ -4,7 +4,7 @@ const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 
 const User = require('../models/User');
-const Staff = require('../models/Staff');
+const Staff = require('../models/staff');
 const Product = require('../models/Product');
 const Payment = require('../models/Payment');
 
